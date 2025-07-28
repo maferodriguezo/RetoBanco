@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Aprobaciones</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .panel {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .btn-success {
+            background-color: #2ecc71;
+        }
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #2c3e50;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .status-pending {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .status-approved {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        .status-rejected {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sistema de Aprobaciones</h1>
+    
+    <div class="panel">
+        <h2>Nueva Solicitud</h2>
+        <div class="form-group">
+            <label for="titulo">Título:</label>
+            <input type="text" id="titulo" required>
+        </div>
+        <div class="form-group">
+            <label for="descripcion">Descripción:</label>
+            <textarea id="descripcion" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="tipoSolicitud">Tipo de Solicitud:</label>
+            <select id="tipoSolicitud" required>
+                <option value="">Seleccione...</option>
+                <option value="ACCESO">Acceso</option>
+                <option value="DESPLIEGUE">Despliegue</option>
+                <option value="CAMBIOS">Cambios</option>
+                <option value="OTRO">Otro</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="solicitante">Solicitante:</label>
+            <input type="text" id="solicitante" required>
+        </div>
+        <div class="form-group">
+            <label for="responsable">Responsable:</label>
+            <input type="text" id="responsable" required>
+        </div>
+        <button onclick="crearSolicitud()">Crear Solicitud</button>
+        <div id="result-crear"></div>
+    </div>
+
+    <div class="panel">
+        <h2>Listado de Solicitudes</h2>
+        <div class="form-group">
+            <label>Filtrar por:</label>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="cargarTodasLasSolicitudes()">Mostrar Todas</button>
+                <input type="text" id="filtroUsuario" placeholder="Solicitante">
+                <button onclick="filtrarPorSolicitante()">Filtrar</button>
+                <input type="text" id="filtroResponsable" placeholder="Responsable">
+                <button onclick="filtrarPorResponsable()">Filtrar</button>
+            </div>
+        </div>
+        <table id="tablaSolicitudes">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Tipo</th>
+                    <th>Solicitante</th>
+                    <th>Responsable</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="solicitudes-body">
+                <!-- Las solicitudes se cargarán aquí -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel" id="detallePanel" style="display: none;">
+        <h2>Detalle de Solicitud</h2>
+        <div id="detalleSolicitud"></div>
+        <div class="form-group" id="accionesPanel" style="margin-top: 20px;">
+            <h3>Acciones</h3>
+            <input type="text" id="usuarioAccion" placeholder="Tu usuario">
+            <textarea id="comentarioAccion" placeholder="Comentario (opcional)" rows="2"></textarea>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn-success" onclick="aprobarSolicitud()">Aprobar</button>
+                <button class="btn-danger" onclick="rechazarSolicitud()">Rechazar</button>
+                <button onclick="cerrarDetalle()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/solicitudes';
+        let solicitudSeleccionada = null;
+
+        // Cargar todas las solicitudes al iniciar
+        document.addEventListener('DOMContentLoaded', cargarTodasLasSolicitudes);
+
+        // Función para crear una nueva solicitud
+        async function crearSolicitud() {
+            const titulo = document.getElementById('titulo').value;
+            const descripcion = document.getElementById('descripcion').value;
+            const tipoSolicitud = document.getElementById('tipoSolicitud').value;
+            const solicitante = document.getElementById('solicitante').value;
+            const responsable = document.getElementById('responsable').value;
+
+            if (!titulo || !descripcion || !tipoSolicitud || !solicitante || !responsable) {
+                alert('Por favor complete todos los campos');
+                return;
+            }
+
+            try {
+                const response = await fetch(API_BASE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        titulo,
+                        descripcion,
+                        tipoSolicitud,
+                        solicitante,
+                        responsable
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al crear la solicitud');
+                }
+
+                const data = await response.json();
+                document.getElementById('result-crear').innerHTML = `
+                    <p style="color: green;">Solicitud creada exitosamente con ID: ${data.id}</p>
+                `;
+                
+                // Limpiar formulario
+                document.getElementById('titulo').value = '';
+                document.getElementById('descripcion').value = '';
+                document.getElementById('tipoSolicitud').value = '';
+                document.getElementById('solicitante').value = '';
+                document.getElementById('responsable').value = '';
+                
+                // Recargar la lista
+                cargarTodasLasSolicitudes();
+            } catch (error) {
+                document.getElementById('result-crear').innerHTML = `
+                    <p style="color: red;">Error: ${error.message}</p>
+                `;
+                console.error('Error:', error);
+            }
+        }
+
+        // Función para cargar todas las solicitudes
+        async function cargarTodasLasSolicitudes() {
+            try {
+                const response = await fetch(API_BASE_URL);
+                if (!response.ok) {
+                    throw new Error('Error al cargar las solicitudes');
+                }
+                const solicitudes = await response.json();
+                mostrarSolicitudes(solicitudes);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('solicitudes-body').innerHTML = `
+                    <tr>
+                        <td colspan="8" style="color: red; text-align: center;">Error al cargar las solicitudes: ${error.message}</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Función para filtrar por solicitante
+        async function filtrarPorSolicitante() {
+            const usuario = document.getElementById('filtroUsuario').value;
+            if (!usuario) {
+                alert('Por favor ingrese un solicitante');
+                return;
+            }
+            try {
+                const response = await fetch(`${API_BASE_URL}/mis-solicitudes?solicitante=${encodeURIComponent(usuario)}`);
+                const solicitudes = await response.json();
+                mostrarSolicitudes(solicitudes);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Función para filtrar por responsable
+        async function filtrarPorResponsable() {
+            const responsable = document.getElementById('filtroResponsable').value;
+            if (!responsable) {
+                alert('Por favor ingrese un responsable');
+                return;
+            }
+            try {
+                const response = await fetch(`${API_BASE_URL}/pendientes?responsable=${encodeURIComponent(responsable)}`);
+                const solicitudes = await response.json();
+                mostrarSolicitudes(solicitudes);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Función para mostrar las solicitudes en la tabla
+        function mostrarSolicitudes(solicitudes) {
+            const tbody = document.getElementById('solicitudes-body');
+            tbody.innerHTML = '';
+
+            if (solicitudes.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center;">No se encontraron solicitudes</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            solicitudes.forEach(solicitud => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${solicitud.id.substring(0, 8)}...</td>
+                    <td>${solicitud.titulo}</td>
+                    <td>${solicitud.tipoSolicitud}</td>
+                    <td>${solicitud.solicitante}</td>
+                    <td>${solicitud.responsable}</td>
+                    <td class="status-${solicitud.estado.toLowerCase()}">${solicitud.estado}</td>
+                    <td>${new Date(solicitud.fechaCreacion).toLocaleString()}</td>
+                    <td>
+                        <button onclick="verDetalle('${solicitud.id}')">Ver</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Función para ver el detalle de una solicitud
+        async function verDetalle(id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/${id}`);
+                if (!response.ok) {
+                    throw new Error('Error al cargar el detalle');
+                }
+                solicitudSeleccionada = await response.json();
+                
+                // Mostrar el detalle
+                document.getElementById('detalleSolicitud').innerHTML = `
+                    <p><strong>ID:</strong> ${solicitudSeleccionada.id}</p>
+                    <p><strong>Título:</strong> ${solicitudSeleccionada.titulo}</p>
+                    <p><strong>Descripción:</strong> ${solicitudSeleccionada.descripcion}</p>
+                    <p><strong>Tipo:</strong> ${solicitudSeleccionada.tipoSolicitud}</p>
+                    <p><strong>Solicitante:</strong> ${solicitudSeleccionada.solicitante}</p>
+                    <p><strong>Responsable:</strong> ${solicitudSeleccionada.responsable}</p>
+                    <p><strong>Estado:</strong> <span class="status-${solicitudSeleccionada.estado.toLowerCase()}">${solicitudSeleccionada.estado}</span></p>
+                    <p><strong>Fecha creación:</strong> ${new Date(solicitudSeleccionada.fechaCreacion).toLocaleString()}</p>
+                `;
+                
+                // Mostrar panel de detalle
+                document.getElementById('detallePanel').style.display = 'block';
+                
+                // Ocultar acciones si ya está aprobada/rechazada
+                if (solicitudSeleccionada.estado !== 'PENDIENTE') {
+                    document.getElementById('accionesPanel').style.display = 'none';
+                } else {
+                    document.getElementById('accionesPanel').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar el detalle: ' + error.message);
+            }
+        }
+
+        // Función para aprobar una solicitud
+        async function aprobarSolicitud() {
+            const usuario = document.getElementById('usuarioAccion').value;
+            if (!usuario) {
+                alert('Por favor ingrese su usuario');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/${solicitudSeleccionada.id}/aprobar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        usuario: usuario,
+                        comentario: document.getElementById('comentarioAccion').value
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al aprobar la solicitud');
+                }
+                
+                alert('Solicitud aprobada exitosamente');
+                cerrarDetalle();
+                cargarTodasLasSolicitudes();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al aprobar: ' + error.message);
+            }
+        }
+
+        // Función para rechazar una solicitud
+        async function rechazarSolicitud() {
+            const usuario = document.getElementById('usuarioAccion').value;
+            if (!usuario) {
+                alert('Por favor ingrese su usuario');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/${solicitudSeleccionada.id}/rechazar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        usuario: usuario,
+                        comentario: document.getElementById('comentarioAccion').value
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error al rechazar la solicitud');
+                }
+                
+                alert('Solicitud rechazada exitosamente');
+                cerrarDetalle();
+                cargarTodasLasSolicitudes();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al rechazar: ' + error.message);
+            }
+        }
+
+        // Función para cerrar el panel de detalle
+        function cerrarDetalle() {
+            document.getElementById('detallePanel').style.display = 'none';
+            document.getElementById('usuarioAccion').value = '';
+            document.getElementById('comentarioAccion').value = '';
+            solicitudSeleccionada = null;
+        }
+    </script>
+</body>
+</html>
