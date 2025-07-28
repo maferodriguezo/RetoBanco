@@ -4,443 +4,503 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Aprobaciones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #34a853;
+            --danger-color: #ea4335;
+            --light-gray: #f5f5f5;
+            --dark-gray: #333;
+            --border-color: #ddd;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+        
+        .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
         }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
         h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 500;
         }
-        .panel {
+        
+        .sidebar {
+            width: 250px;
+            float: left;
             background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-right: 20px;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        
+        .sidebar li:last-child {
+            border-bottom: none;
+        }
+        
+        .sidebar li.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .main-content {
+            margin-left: 270px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             padding: 20px;
-            margin-bottom: 30px;
         }
+        
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
+        
         label {
             display: block;
             margin-bottom: 5px;
-            font-weight: bold;
-            color: #34495e;
+            font-weight: 500;
         }
-        input, select, textarea {
+        
+        input[type="text"], 
+        textarea, 
+        select {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
-            box-sizing: border-box;
             font-size: 16px;
         }
-        button {
-            background-color: #3498db;
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 10px 15px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
             transition: background-color 0.3s;
         }
-        button:hover {
-            background-color: #2980b9;
+        
+        .btn:hover {
+            background-color: #3367d6;
         }
-        .btn-danger {
-            background-color: #e74c3c;
-        }
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
+        
         .btn-success {
-            background-color: #2ecc71;
+            background-color: var(--secondary-color);
         }
+        
         .btn-success:hover {
-            background-color: #27ae60;
+            background-color: #2d9249;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        
+        .btn-danger {
+            background-color: var(--danger-color);
         }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+        
+        .btn-danger:hover {
+            background-color: #d33426;
         }
-        th {
-            background-color: #f2f2f2;
-            color: #2c3e50;
+        
+        .notification-badge {
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            margin-left: 5px;
         }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        .status-pending {
-            color: #f39c12;
-            font-weight: bold;
-        }
-        .status-approved {
-            color: #2ecc71;
-            font-weight: bold;
-        }
-        .status-rejected {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-        }
-        #result {
-            margin-top: 20px;
+        
+        .solicitud-card {
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
             padding: 15px;
-            border-radius: 4px;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
+            margin-bottom: 15px;
+            background-color: var(--light-gray);
+        }
+        
+        .solicitud-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .solicitud-card .meta {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .solicitud-card .actions {
+            margin-top: 10px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
         }
     </style>
 </head>
 <body>
-    <h1>Sistema de Aprobaciones</h1>
-    
-    <div class="panel">
-        <h2>Nueva Solicitud</h2>
-        <div class="form-group">
-            <label for="titulo">Título:</label>
-            <input type="text" id="titulo" required>
-        </div>
-        <div class="form-group">
-            <label for="descripcion">Descripción:</label>
-            <textarea id="descripcion" rows="3" required></textarea>
-        </div>
-        <div class="form-group">
-            <label for="tipoSolicitud">Tipo de Solicitud:</label>
-            <select id="tipoSolicitud" required>
-                <option value="">Seleccione...</option>
-                <option value="ACCESO">Acceso</option>
-                <option value="DESPLIEGUE">Despliegue</option>
-                <option value="CAMBIOS">Cambios</option>
-                <option value="OTRO">Otro</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="solicitante">Solicitante:</label>
-            <input type="text" id="solicitante" required>
-        </div>
-        <div class="form-group">
-            <label for="responsable">Responsable:</label>
-            <input type="text" id="responsable" required>
-        </div>
-        <button onclick="crearSolicitud()">Crear Solicitud</button>
-        <div id="result-crear"></div>
-    </div>
-
-    <div class="panel">
-        <h2>Listado de Solicitudes</h2>
-        <div class="form-group">
-            <label>Filtrar por:</label>
-            <div style="display: flex; gap: 10px;">
-                <button onclick="cargarTodasLasSolicitudes()">Mostrar Todas</button>
-                <input type="text" id="filtroUsuario" placeholder="Solicitante">
-                <button onclick="filtrarPorSolicitante()">Filtrar</button>
-                <input type="text" id="filtroResponsable" placeholder="Responsable">
-                <button onclick="filtrarPorResponsable()">Filtrar</button>
+    <div class="container">
+        <header>
+            <h1>Sistema de Aprobaciones</h1>
+        </header>
+        
+        <div class="clearfix">
+            <div class="sidebar">
+                <ul>
+                    <li id="nueva-solicitud-link" class="active">Nueva Solicitud</li>
+                    <li id="mis-solicitudes-link">Mis Solicitudes</li>
+                    <li id="pendientes-link">Pendientes <span id="pendientes-badge" class="notification-badge hidden">0</span></li>
+                    <li>Histórico (10 días)</li>
+                </ul>
             </div>
-        </div>
-        <table id="tablaSolicitudes">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Título</th>
-                    <th>Tipo</th>
-                    <th>Solicitante</th>
-                    <th>Responsable</th>
-                    <th>Estado</th>
-                    <th>Fecha</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="solicitudes-body">
-                <!-- Las solicitudes se cargarán aquí -->
-            </tbody>
-        </table>
-    </div>
-
-    <div class="panel" id="detallePanel" style="display: none;">
-        <h2>Detalle de Solicitud</h2>
-        <div id="detalleSolicitud"></div>
-        <div class="form-group" id="accionesPanel" style="margin-top: 20px;">
-            <h3>Acciones</h3>
-            <input type="text" id="usuarioAccion" placeholder="Tu usuario">
-            <textarea id="comentarioAccion" placeholder="Comentario (opcional)" rows="2"></textarea>
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button class="btn-success" onclick="aprobarSolicitud()">Aprobar</button>
-                <button class="btn-danger" onclick="rechazarSolicitud()">Rechazar</button>
-                <button onclick="cerrarDetalle()">Cerrar</button>
+            
+            <div class="main-content">
+                <!-- Formulario de Nueva Solicitud -->
+                <div id="nueva-solicitud-section">
+                    <h2>Crear Nueva Solicitud</h2>
+                    <form id="solicitud-form">
+                        <div class="form-group">
+                            <label for="titulo">Título *</label>
+                            <input type="text" id="titulo" name="titulo" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="descripcion">Descripción *</label>
+                            <textarea id="descripcion" name="descripcion" placeholder="Describe detalladamente la solicitud..." required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tipo-solicitud">Tipo de Solicitud *</label>
+                            <select id="tipo-solicitud" name="tipoSolicitud" required>
+                                <option value="">Seleccionar tipo</option>
+                                <option value="despliegue">Despliegue</option>
+                                <option value="acceso">Acceso</option>
+                                <option value="cambio-tecnico">Cambio Técnico</option>
+                                <option value="herramienta">Nueva Herramienta</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="solicitante">Solicitante *</label>
+                            <input type="text" id="solicitante" name="solicitante" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="responsable">Responsable (Aprobador) *</label>
+                            <select id="responsable" name="responsable" required>
+                                <option value="">Seleccionar responsable</option>
+                                <option value="juan.perez@example.com">Juan Pérez</option>
+                                <option value="maria.gomez@example.com">María Gómez</option>
+                                <option value="carlos.lopez@example.com">Carlos López</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn">Enviar Solicitud</button>
+                    </form>
+                </div>
+                
+                <!-- Lista de Mis Solicitudes -->
+                <div id="mis-solicitudes-section" class="hidden">
+                    <h2>Mis Solicitudes</h2>
+                    <div id="mis-solicitudes-list">
+                        <!-- Las solicitudes se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+                
+                <!-- Lista de Solicitudes Pendientes -->
+                <div id="pendientes-section" class="hidden">
+                    <h2>Solicitudes Pendientes de Aprobación</h2>
+                    <div id="pendientes-list">
+                        <!-- Las solicitudes pendientes se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const API_BASE_URL = 'http://localhost:8080/solicitudes';
-        let solicitudSeleccionada = null;
-
-        // Cargar todas las solicitudes al iniciar
-        document.addEventListener('DOMContentLoaded', cargarTodasLasSolicitudes);
-
-        // Función para crear una nueva solicitud
-        async function crearSolicitud() {
-            const titulo = document.getElementById('titulo').value;
-            const descripcion = document.getElementById('descripcion').value;
-            const tipoSolicitud = document.getElementById('tipoSolicitud').value;
-            const solicitante = document.getElementById('solicitante').value;
-            const responsable = document.getElementById('responsable').value;
-
-            if (!titulo || !descripcion || !tipoSolicitud || !solicitante || !responsable) {
-                alert('Por favor complete todos los campos');
-                return;
-            }
-
-            try {
-                const response = await fetch(API_BASE_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        titulo,
-                        descripcion,
-                        tipoSolicitud,
-                        solicitante,
-                        responsable
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Error al crear la solicitud');
-                }
-
-                const data = await response.json();
-                document.getElementById('result-crear').innerHTML = `
-                    <p style="color: green;">Solicitud creada exitosamente con ID: ${data.id}</p>
-                `;
+        // Variables globales
+        let currentUser = "usuario1@example.com"; // Simulamos un usuario logueado
+        
+        // Elementos del DOM
+        const nuevaSolicitudLink = document.getElementById('nueva-solicitud-link');
+        const misSolicitudesLink = document.getElementById('mis-solicitudes-link');
+        const pendientesLink = document.getElementById('pendientes-link');
+        const pendientesBadge = document.getElementById('pendientes-badge');
+        
+        const nuevaSolicitudSection = document.getElementById('nueva-solicitud-section');
+        const misSolicitudesSection = document.getElementById('mis-solicitudes-section');
+        const pendientesSection = document.getElementById('pendientes-section');
+        
+        const solicitudForm = document.getElementById('solicitud-form');
+        const misSolicitudesList = document.getElementById('mis-solicitudes-list');
+        const pendientesList = document.getElementById('pendientes-list');
+        
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Establecer usuario actual como solicitante por defecto
+            document.getElementById('solicitante').value = currentUser;
+            
+            // Cargar datos iniciales
+            cargarMisSolicitudes();
+            cargarSolicitudesPendientes();
+            
+            // Configurar navegación
+            setupNavigation();
+            
+            // Configurar formulario
+            setupForm();
+        });
+        
+        function setupNavigation() {
+            nuevaSolicitudLink.addEventListener('click', () => {
+                nuevaSolicitudLink.classList.add('active');
+                misSolicitudesLink.classList.remove('active');
+                pendientesLink.classList.remove('active');
                 
-                // Limpiar formulario
-                document.getElementById('titulo').value = '';
-                document.getElementById('descripcion').value = '';
-                document.getElementById('tipoSolicitud').value = '';
-                document.getElementById('solicitante').value = '';
-                document.getElementById('responsable').value = '';
+                nuevaSolicitudSection.classList.remove('hidden');
+                misSolicitudesSection.classList.add('hidden');
+                pendientesSection.classList.add('hidden');
+            });
+            
+            misSolicitudesLink.addEventListener('click', () => {
+                nuevaSolicitudLink.classList.remove('active');
+                misSolicitudesLink.classList.add('active');
+                pendientesLink.classList.remove('active');
                 
-                // Recargar la lista
-                cargarTodasLasSolicitudes();
-            } catch (error) {
-                document.getElementById('result-crear').innerHTML = `
-                    <p style="color: red;">Error: ${error.message}</p>
-                `;
-                console.error('Error:', error);
-            }
-        }
-
-        // Función para cargar todas las solicitudes
-        async function cargarTodasLasSolicitudes() {
-            try {
-                const response = await fetch(API_BASE_URL);
-                if (!response.ok) {
-                    throw new Error('Error al cargar las solicitudes');
-                }
-                const solicitudes = await response.json();
-                mostrarSolicitudes(solicitudes);
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('solicitudes-body').innerHTML = `
-                    <tr>
-                        <td colspan="8" style="color: red; text-align: center;">Error al cargar las solicitudes: ${error.message}</td>
-                    </tr>
-                `;
-            }
-        }
-
-        // Función para filtrar por solicitante
-        async function filtrarPorSolicitante() {
-            const usuario = document.getElementById('filtroUsuario').value;
-            if (!usuario) {
-                alert('Por favor ingrese un solicitante');
-                return;
-            }
-            try {
-                const response = await fetch(`${API_BASE_URL}/mis-solicitudes?solicitante=${encodeURIComponent(usuario)}`);
-                const solicitudes = await response.json();
-                mostrarSolicitudes(solicitudes);
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        // Función para filtrar por responsable
-        async function filtrarPorResponsable() {
-            const responsable = document.getElementById('filtroResponsable').value;
-            if (!responsable) {
-                alert('Por favor ingrese un responsable');
-                return;
-            }
-            try {
-                const response = await fetch(`${API_BASE_URL}/pendientes?responsable=${encodeURIComponent(responsable)}`);
-                const solicitudes = await response.json();
-                mostrarSolicitudes(solicitudes);
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        // Función para mostrar las solicitudes en la tabla
-        function mostrarSolicitudes(solicitudes) {
-            const tbody = document.getElementById('solicitudes-body');
-            tbody.innerHTML = '';
-
-            if (solicitudes.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center;">No se encontraron solicitudes</td>
-                    </tr>
-                `;
-                return;
-            }
-
-            solicitudes.forEach(solicitud => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${solicitud.id.substring(0, 8)}...</td>
-                    <td>${solicitud.titulo}</td>
-                    <td>${solicitud.tipoSolicitud}</td>
-                    <td>${solicitud.solicitante}</td>
-                    <td>${solicitud.responsable}</td>
-                    <td class="status-${solicitud.estado.toLowerCase()}">${solicitud.estado}</td>
-                    <td>${new Date(solicitud.fechaCreacion).toLocaleString()}</td>
-                    <td>
-                        <button onclick="verDetalle('${solicitud.id}')">Ver</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
+                nuevaSolicitudSection.classList.add('hidden');
+                misSolicitudesSection.classList.remove('hidden');
+                pendientesSection.classList.add('hidden');
+                
+                cargarMisSolicitudes();
+            });
+            
+            pendientesLink.addEventListener('click', () => {
+                nuevaSolicitudLink.classList.remove('active');
+                misSolicitudesLink.classList.remove('active');
+                pendientesLink.classList.add('active');
+                
+                nuevaSolicitudSection.classList.add('hidden');
+                misSolicitudesSection.classList.add('hidden');
+                pendientesSection.classList.remove('hidden');
+                
+                cargarSolicitudesPendientes();
             });
         }
-
-        // Función para ver el detalle de una solicitud
-        async function verDetalle(id) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/${id}`);
-                if (!response.ok) {
-                    throw new Error('Error al cargar el detalle');
+        
+        function setupForm() {
+            solicitudForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(solicitudForm);
+                const solicitudDto = {
+                    titulo: formData.get('titulo'),
+                    descripcion: formData.get('descripcion'),
+                    tipoSolicitud: formData.get('tipoSolicitud'),
+                    solicitante: formData.get('solicitante'),
+                    responsable: formData.get('responsable')
+                };
+                
+                try {
+                    const response = await fetch('http://localhost:8080/api/solicitudes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(solicitudDto)
+                    });
+                    
+                    if (response.ok) {
+                        alert('Solicitud creada exitosamente');
+                        solicitudForm.reset();
+                        // Restablecer el solicitante al usuario actual
+                        document.getElementById('solicitante').value = currentUser;
+                        
+                        // Actualizar el badge de pendientes
+                        cargarSolicitudesPendientes();
+                    } else {
+                        throw new Error('Error al crear la solicitud');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Ocurrió un error al crear la solicitud');
                 }
-                solicitudSeleccionada = await response.json();
+            });
+        }
+        
+        async function cargarMisSolicitudes() {
+            try {
+                const response = await fetch(`http://localhost:8080/api/solicitudes/mis-solicitudes?solicitante=${currentUser}`);
+                const solicitudes = await response.json();
                 
-                // Mostrar el detalle
-                document.getElementById('detalleSolicitud').innerHTML = `
-                    <p><strong>ID:</strong> ${solicitudSeleccionada.id}</p>
-                    <p><strong>Título:</strong> ${solicitudSeleccionada.titulo}</p>
-                    <p><strong>Descripción:</strong> ${solicitudSeleccionada.descripcion}</p>
-                    <p><strong>Tipo:</strong> ${solicitudSeleccionada.tipoSolicitud}</p>
-                    <p><strong>Solicitante:</strong> ${solicitudSeleccionada.solicitante}</p>
-                    <p><strong>Responsable:</strong> ${solicitudSeleccionada.responsable}</p>
-                    <p><strong>Estado:</strong> <span class="status-${solicitudSeleccionada.estado.toLowerCase()}">${solicitudSeleccionada.estado}</span></p>
-                    <p><strong>Fecha creación:</strong> ${new Date(solicitudSeleccionada.fechaCreacion).toLocaleString()}</p>
-                `;
+                misSolicitudesList.innerHTML = '';
                 
-                // Mostrar panel de detalle
-                document.getElementById('detallePanel').style.display = 'block';
+                if (solicitudes.length === 0) {
+                    misSolicitudesList.innerHTML = '<p>No tienes solicitudes creadas.</p>';
+                    return;
+                }
                 
-                // Ocultar acciones si ya está aprobada/rechazada
-                if (solicitudSeleccionada.estado !== 'PENDIENTE') {
-                    document.getElementById('accionesPanel').style.display = 'none';
+                solicitudes.forEach(solicitud => {
+                    const card = crearCardSolicitud(solicitud, false);
+                    misSolicitudesList.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error al cargar mis solicitudes:', error);
+                misSolicitudesList.innerHTML = '<p>Error al cargar las solicitudes</p>';
+            }
+        }
+        
+        async function cargarSolicitudesPendientes() {
+            try {
+                const response = await fetch(`http://localhost:8080/api/solicitudes/pendientes?responsable=${currentUser}`);
+                const solicitudes = await response.json();
+                
+                // Actualizar badge
+                if (solicitudes.length > 0) {
+                    pendientesBadge.textContent = solicitudes.length;
+                    pendientesBadge.classList.remove('hidden');
                 } else {
-                    document.getElementById('accionesPanel').style.display = 'block';
+                    pendientesBadge.classList.add('hidden');
                 }
+                
+                pendientesList.innerHTML = '';
+                
+                if (solicitudes.length === 0) {
+                    pendientesList.innerHTML = '<p>No tienes solicitudes pendientes de aprobación.</p>';
+                    return;
+                }
+                
+                solicitudes.forEach(solicitud => {
+                    const card = crearCardSolicitud(solicitud, true);
+                    pendientesList.appendChild(card);
+                });
             } catch (error) {
-                console.error('Error:', error);
-                alert('Error al cargar el detalle: ' + error.message);
+                console.error('Error al cargar solicitudes pendientes:', error);
+                pendientesList.innerHTML = '<p>Error al cargar las solicitudes pendientes</p>';
             }
         }
-
-        // Función para aprobar una solicitud
-        async function aprobarSolicitud() {
-            const usuario = document.getElementById('usuarioAccion').value;
-            if (!usuario) {
-                alert('Por favor ingrese su usuario');
-                return;
+        
+        function crearCardSolicitud(solicitud, esAprobador) {
+            const card = document.createElement('div');
+            card.className = 'solicitud-card';
+            
+            const estadoClass = solicitud.estado === 'APROBADO' ? 'estado-aprobado' : 
+                               solicitud.estado === 'RECHAZADO' ? 'estado-rechazado' : 'estado-pendiente';
+            
+            card.innerHTML = `
+                <h3>${solicitud.titulo}</h3>
+                <div class="meta">
+                    <p><strong>Tipo:</strong> ${solicitud.tipoSolicitud}</p>
+                    <p><strong>Solicitante:</strong> ${solicitud.solicitante}</p>
+                    <p><strong>Estado:</strong> <span class="${estadoClass}">${solicitud.estado}</span></p>
+                    <p><strong>Fecha:</strong> ${new Date(solicitud.fechaCreacion).toLocaleString()}</p>
+                </div>
+                <p>${solicitud.descripcion}</p>
+            `;
+            
+            if (esAprobador && solicitud.estado === 'PENDIENTE') {
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'actions';
+                
+                const comentarioInput = document.createElement('input');
+                comentarioInput.type = 'text';
+                comentarioInput.placeholder = 'Ingrese un comentario (opcional)';
+                comentarioInput.className = 'comentario-input';
+                
+                const aprobarBtn = document.createElement('button');
+                aprobarBtn.textContent = 'Aprobar';
+                aprobarBtn.className = 'btn btn-success';
+                aprobarBtn.addEventListener('click', async () => {
+                    await manejarAccionSolicitud(solicitud.id, 'APROBADO', comentarioInput.value);
+                });
+                
+                const rechazarBtn = document.createElement('button');
+                rechazarBtn.textContent = 'Rechazar';
+                rechazarBtn.className = 'btn btn-danger';
+                rechazarBtn.addEventListener('click', async () => {
+                    await manejarAccionSolicitud(solicitud.id, 'RECHAZADO', comentarioInput.value);
+                });
+                
+                actionsDiv.appendChild(comentarioInput);
+                actionsDiv.appendChild(aprobarBtn);
+                actionsDiv.appendChild(rechazarBtn);
+                card.appendChild(actionsDiv);
             }
             
+            return card;
+        }
+        
+        async function manejarAccionSolicitud(solicitudId, accion, comentario) {
             try {
-                const response = await fetch(`${API_BASE_URL}/${solicitudSeleccionada.id}/aprobar`, {
+                const endpoint = accion === 'APROBADO' ? 'aprobar' : 'rechazar';
+                const response = await fetch(`http://localhost:8080/api/solicitudes/${solicitudId}/${endpoint}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        usuario: usuario,
-                        comentario: document.getElementById('comentarioAccion').value
+                        usuario: currentUser,
+                        comentario: comentario || ''
                     })
                 });
                 
-                if (!response.ok) {
-                    throw new Error('Error al aprobar la solicitud');
+                if (response.ok) {
+                    alert(`Solicitud ${accion.toLowerCase()} exitosamente`);
+                    cargarSolicitudesPendientes();
+                } else {
+                    throw new Error(`Error al ${accion.toLowerCase()} la solicitud`);
                 }
-                
-                alert('Solicitud aprobada exitosamente');
-                cerrarDetalle();
-                cargarTodasLasSolicitudes();
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error al aprobar: ' + error.message);
+                alert(`Ocurrió un error al ${accion.toLowerCase()} la solicitud`);
             }
-        }
-
-        // Función para rechazar una solicitud
-        async function rechazarSolicitud() {
-            const usuario = document.getElementById('usuarioAccion').value;
-            if (!usuario) {
-                alert('Por favor ingrese su usuario');
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/${solicitudSeleccionada.id}/rechazar`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        usuario: usuario,
-                        comentario: document.getElementById('comentarioAccion').value
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Error al rechazar la solicitud');
-                }
-                
-                alert('Solicitud rechazada exitosamente');
-                cerrarDetalle();
-                cargarTodasLasSolicitudes();
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al rechazar: ' + error.message);
-            }
-        }
-
-        // Función para cerrar el panel de detalle
-        function cerrarDetalle() {
-            document.getElementById('detallePanel').style.display = 'none';
-            document.getElementById('usuarioAccion').value = '';
-            document.getElementById('comentarioAccion').value = '';
-            solicitudSeleccionada = null;
         }
     </script>
 </body>
